@@ -5,6 +5,9 @@ struct TheoryApp: App {
     // Stores the ID from the URL (widget tap)
     @State private var deepLinkQuoteID: String? = nil
     
+    // Connects the AppDelegate to lock orientation
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    
     var body: some Scene {
         WindowGroup {
             // Pass the binding ($) so ContentView can read/reset it
@@ -26,12 +29,19 @@ struct TheoryApp: App {
                 print("🔗 Deep link: Opening quote with ID: \(decodedID)")
             }
         }
-        // CASE 2: Copy specific quote
+        // CASE 2: Copy specific quote (Handled in ContentView.onOpenURL, but passing ID ensures app wakes up)
         else if string.contains("theoryapp://copy/") {
             let encodedID = string.replacingOccurrences(of: "theoryapp://copy/", with: "")
             if let decodedID = encodedID.removingPercentEncoding {
-                deepLinkQuoteID = decodedID // We pass it down; ContentView handles the logic
+                deepLinkQuoteID = decodedID
             }
         }
+    }
+}
+
+// Class to force Portrait orientation
+class AppDelegate: NSObject, UIApplicationDelegate {
+    func application(_ application: UIApplication, supportedInterfaceOrientationsFor window: UIWindow?) -> UIInterfaceOrientationMask {
+        return .portrait
     }
 }
